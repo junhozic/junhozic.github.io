@@ -13,21 +13,39 @@
         
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('https://junhozic.github.io/logo.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            filter: brightness(0.7);
+            z-index: -1;
         }
         
         #loginBox {
-            background: white;
-            padding: 40px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 50px 40px;
             border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
             text-align: center;
             max-width: 400px;
             width: 90%;
+            z-index: 10;
         }
         
         h1 {
@@ -45,6 +63,7 @@
             text-align: center;
             letter-spacing: 5px;
             transition: border-color 0.3s;
+            background: white;
         }
         
         #passwordInput:focus {
@@ -79,6 +98,7 @@
             margin-top: 15px;
             font-size: 14px;
             display: none;
+            font-weight: 600;
         }
         
         #contentFrame {
@@ -89,6 +109,7 @@
             width: 100%;
             height: 100%;
             border: none;
+            z-index: 9999;
         }
     </style>
 </head>
@@ -109,44 +130,49 @@
         
         if (!targetUrl || !correctPassword) {
             document.getElementById('loginBox').innerHTML = '<h1>⚠️ 잘못된 링크입니다</h1><p style="color:#666;margin-top:10px;">URL 파라미터가 없습니다.</p>';
-        }
-        
-        let fullUrl = targetUrl;
-        if (!targetUrl.startsWith('http://') && !targetUrl.startsWith('https://')) {
-            fullUrl = 'https://' + targetUrl;
-        }
-        
-        document.getElementById('contentFrame').src = fullUrl;
-        
-        function checkPassword() {
-            const input = document.getElementById('passwordInput').value;
-            const errorMsg = document.getElementById('errorMsg');
+        } else {
+            let fullUrl = targetUrl;
+            if (!targetUrl.startsWith('http://') && !targetUrl.startsWith('https://')) {
+                fullUrl = 'https://' + targetUrl;
+            }
             
-            if (input === correctPassword) {
-                document.getElementById('loginBox').style.display = 'none';
-                document.getElementById('contentFrame').style.display = 'block';
-            } else {
-                errorMsg.style.display = 'block';
-                document.getElementById('passwordInput').value = '';
-                document.getElementById('passwordInput').focus();
+            document.getElementById('contentFrame').src = fullUrl;
+            
+            function checkPassword() {
+                const input = document.getElementById('passwordInput').value;
+                const errorMsg = document.getElementById('errorMsg');
                 
-                setTimeout(function() {
-                    errorMsg.style.display = 'none';
-                }, 2000);
+                if (input === correctPassword) {
+                    document.getElementById('loginBox').style.display = 'none';
+                    document.getElementById('contentFrame').style.display = 'block';
+                } else {
+                    errorMsg.style.display = 'block';
+                    document.getElementById('passwordInput').value = '';
+                    document.getElementById('passwordInput').focus();
+                    
+                    setTimeout(function() {
+                        errorMsg.style.display = 'none';
+                    }, 2000);
+                }
+            }
+            
+            const checkBtn = document.getElementById('checkBtn');
+            const passwordInput = document.getElementById('passwordInput');
+            
+            if (checkBtn) {
+                checkBtn.addEventListener('click', checkPassword);
+            }
+            
+            if (passwordInput) {
+                passwordInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        checkPassword();
+                    }
+                });
+                
+                passwordInput.focus();
             }
         }
-        
-        document.getElementById('checkBtn').addEventListener('click', checkPassword);
-        
-        document.getElementById('passwordInput').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                checkPassword();
-            }
-        });
-        
-        window.onload = function() {
-            document.getElementById('passwordInput').focus();
-        };
     </script>
 </body>
 </html>
